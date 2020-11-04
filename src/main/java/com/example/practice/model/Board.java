@@ -5,6 +5,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import lombok.Data;
 
@@ -12,10 +14,13 @@ import lombok.Data;
 @Data
 public class Board {
     @Id
-    @SequenceGenerator(name="board_seq_generator" ,sequenceName = "board_sequence" ,allocationSize=1)
+    @SequenceGenerator(name = "board_seq_generator", sequenceName = "board_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "board_seq_generator")
-    private int id;
+    private long id;
+
+    @NotNull
+	@Size(min=5, max=30)
     private String title;
     private String content;
-    
+
 }
