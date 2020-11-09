@@ -37,15 +37,14 @@
         <tr th:each="board : ${boards}">
           <th th:text="${board.id}">번호</th>
           <td><a th:text="${board.title}" th:href="@{/board/form(id=${board.id})}">제목</a></td>
-          <td>홍길동</td>
+          <td th:text="${board.member.username}">홍길동</td>
         </tr>
       </tbody>
     </table>
 
     <nav aria-label="Page navigation example">
       <ul class="pagination justify-content-center">
-        <li class="page-item " th:classappend="${startPage==boards.pageable.pageNumber+1}?'disabled'"
-          th:class="${boards.totalPages}<1 ? 'page-item disabled' : 'page-item'">
+        <li class="page-item " th:classappend="${startPage==boards.pageable.pageNumber+1}?'disabled'">
           <a class="page-link" href="#"
             th:href="@{/board/list(page=${boards.pageable.pageNumber-1},searchText=${param.searchText})}" tabindex="-1"
             aria-disabled="true">Previous</a>

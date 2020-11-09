@@ -4,6 +4,7 @@ import javax.validation.Valid;
 
 import com.example.practice.model.Board;
 import com.example.practice.repository.BoardRepository;
+import com.example.practice.service.BoardService;
 import com.example.practice.validator.BoardValidator;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,6 +28,9 @@ public class BoardController {
     @Autowired
     private BoardRepository boardRepository;
 
+    @Autowired(required=true)
+    private BoardService boardService;
+
     @Autowired
     private BoardValidator boardValidator;
 
@@ -33,12 +38,9 @@ public class BoardController {
     public String list(Model model,
             @PageableDefault(size = 10, direction = Direction.DESC, sort = "id") Pageable pageable,
             @RequestParam(required = false, defaultValue = "") String searchText) {
-        // Page<Board> boards = boardRepository.findAll(pageable);
         Page<Board> boards = boardRepository.findByTitleContainingOrContentContaining(searchText, searchText, pageable);
-
-        double pageSize = 10.0;
-        int startPage = Math.min(1, 1);
-        int endPage = (int) Math.ceil(boards.getTotalElements() / pageSize);
+        int startPage = 1;
+        int endPage = boards.getTotalPages();
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
         model.addAttribute("boards", boards);
@@ -57,12 +59,13 @@ public class BoardController {
     }
 
     @PostMapping("/form")
-    public String formSubmit(@Valid Board board, BindingResult bindingResult) {
+    public String formSubmit(@Valid Board board, BindingResult bindingResult, Authentication authentication) {
         boardValidator.validate(board, bindingResult);
         if (bindingResult.hasErrors()) {
             return "board/form";
         }
-        boardRepository.save(board);
+        String username = authentication.getName();
+        boardService.save(username, board);
         return "redirect:/board/list";
     }
 
